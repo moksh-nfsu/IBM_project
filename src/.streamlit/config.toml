@@ -1,0 +1,18 @@
+[client]
+toolbarMode = "viewer"        # no Deploy button or developer menu
+showErrorDetails = false
+showSidebarNavigation = false
+
+[browser]
+gatherUsageStats = false
+
+[server]
+maxUploadSize = 50
+
+[theme]
+base = "light"
+primaryColor = "#1f4e8c"
+backgroundColor = "#f5f6f8"
+secondaryBackgroundColor = "#ffffff"
+textColor = "#1b1f24"
+font = "sans serif"

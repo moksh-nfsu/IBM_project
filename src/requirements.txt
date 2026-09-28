@@ -1,0 +1,13 @@
+streamlit>=1.50
+pandas
+numpy
+scikit-learn
+scipy
+networkx
+plotly
+pyvis
+jinja2
+python-dotenv
+mcp
+pytest
+pypdf  # only to rebuild the legal KB from the official PDFs (python -m threatlens.law.build_kb)

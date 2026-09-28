@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>{{ brief_id }} — ThreatLens threat brief</title>
+<style>
+  @page { size: A4; margin: 14mm 12mm; }
+  * { box-sizing: border-box; }
+  body { font-family: "Segoe UI", Arial, sans-serif; font-size: 10.5pt; color: #1b1b1b; max-width: 900px;
+         margin: 0 auto; padding: 18px; line-height: 1.4; }
+  h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; margin: 0; }
+  h1 { font-size: 17pt; }
+  h2 { font-size: 12pt; margin: 18px 0 6px; padding-bottom: 3px; border-bottom: 1.5px solid #1b1b1b; }
+  h3 { font-size: 10.5pt; margin: 10px 0 4px; }
+  .marking { text-align: center; font-weight: 700; letter-spacing: .12em; color: #8b0000; font-size: 9pt;
+             border: 1.5px solid #8b0000; padding: 3px; }
+  .head { display: flex; justify-content: space-between; gap: 16px; margin: 10px 0 4px; }
+  .meta { font-size: 9pt; color: #444; text-align: right; }
+  .meta b { color: #1b1b1b; }
+  .bluf { border-left: 5px solid {{ state_colour }}; background: #f6f6f4; padding: 8px 12px; }
+  .bluf p { margin: 3px 0; }
+  .assessment { border: 1px solid #bbb; padding: 8px 12px; background: #fcfcfa; }
+  .assessment .by { font-size: 8.5pt; color: #555; font-style: italic; margin-bottom: 4px; }
+  .ladder { display: flex; gap: 4px; margin: 6px 0 8px; }
+  .ladder div { flex: 1; text-align: center; padding: 6px 2px; font-size: 8.5pt; font-weight: 700;
+                border: 1.5px solid #bbb; color: #999; }
+  .ladder div.reached { color: #1b1b1b; border-color: #666; }
+  .ladder div.current { color: #fff; }
+  table { width: 100%; border-collapse: collapse; font-size: 8.8pt; margin: 4px 0; }
+  th { text-align: left; background: #ececea; border: 1px solid #c9c9c9; padding: 3px 5px; }
+  td { border: 1px solid #d9d9d9; padding: 3px 5px; vertical-align: top; }
+  .ids { font-family: Consolas, monospace; font-size: 8pt; white-space: nowrap; }
+  .hash { font-family: Consolas, monospace; font-size: 6.8pt; word-break: break-all; }
+  .no { color: #999; }
+  .warn { color: #8b0000; font-weight: 700; }
+  .note { font-size: 8.5pt; color: #555; }
+  .event { border: 1.5px solid #8b0000; padding: 6px 10px; margin: 6px 0; }
+  footer { margin-top: 18px; border-top: 1px solid #999; padding-top: 6px; font-size: 8.5pt; color: #555;
+           text-align: center; }
+  @media print {
+    body { padding: 0; max-width: none; }
+    h2 { break-after: avoid; }
+    tr, .event, .bluf, .assessment { break-inside: avoid; }
+    .ladder div.current, .marking { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<div class="marking">RESTRICTED — FOR OFFICIAL USE</div>
+
+<div class="head">
+  <div>
+    <h1>Threat Intelligence Brief</h1>
+    <div>{{ intel.campaign_id }} · {{ main_hashtag }} · {{ intel.label | upper }}</div>
+  </div>
+  <div class="meta">
+    Brief ID <b>{{ brief_id }}</b><br>
+    Generated <b>{{ generated_at }}</b><br>
+    Data snapshot <b>{{ snapshot }}</b><br>
+    Analyst <b>{{ analyst }}</b>
+  </div>
+</div>
+
+<h2>1. Bottom line up front</h2>
+<div class="bluf">
+  {% for line in bluf %}<p>{{ line }}</p>{% endfor %}
+</div>
+
+<h2>2. Analyst assessment</h2>
+<div class="assessment">
+  <div class="by">{{ assessment_label }}</div>
+  {% for para in assessment.split("\n") if para.strip() %}<p>{{ para }}</p>{% endfor %}
+</div>
+
+<h2>3. Campaign state</h2>
+<div class="ladder">
+  {% for s in states %}
+  <div class="{{ 'current' if s == intel.state else ('reached' if s in reached else '') }}"
+       style="{{ 'background:' ~ colours[s] ~ ';border-color:' ~ colours[s] if s == intel.state else '' }}">{{ s }}</div>
+  {% endfor %}
+</div>
+<table>
+  <tr><th>Trigger</th><th>State</th><th>Rule</th><th>Observed</th><th>Fired</th><th>Evidence</th></tr>
+  {% for t in intel.triggers %}
+  <tr>
+    <td><b>{{ t.id }}</b></td><td>{{ t.state }}</td><td>{{ t.condition }}</td><td>{{ t.observed }}</td>
+    <td>{% if t.fired %}<b>Yes</b> {{ t.fired_at | hhmm }}{% if not t.counts_toward_state %} <span class="note">(benign: capped)</span>{% endif %}{% else %}<span class="no">No</span>{% endif %}</td>
+    <td class="ids">{{ t.evidence_post_ids | join(", ") }}</td>
+  </tr>
+  {% endfor %}
+</table>
+<p class="note">A higher state requires its written trigger; incitement/harassment/misinformation is needed for ESCALATING and MOBILIZATION. There is no numeric risk score.</p>
+
+<h2>4. Timeline</h2>
+<table>
+  <tr><th>Time</th><th>Event</th><th>Description</th><th>Evidence</th></tr>
+  {% for e in intel.timeline %}
+  <tr><td class="ids">{{ e.t | hhmm }}</td><td>{{ e.type }}</td><td>{{ e.description }}</td>
+      <td class="ids">{{ e.evidence_post_ids | join(", ") }}</td></tr>
+  {% endfor %}
+</table>
+
+<h2>5. Propagation</h2>
+<p>Potential reach <b>{{ "{:,}".format(intel.propagation.potential_reach) }}</b> followers ·
+   peak 10-minute window starts <b>{{ intel.propagation.peak_bucket | hhmm }}</b> ·
+   coordination score <b>{{ cluster.coordination_score }}/100</b>
+   ({% for k, v in cluster.contributions.items() %}{{ k.replace("_", " ") }} {{ v }}{{ ", " if not loop.last }}{% endfor %}).</p>
+<table>
+  <tr><th>10-min bucket</th><th>Posts</th><th>New accounts</th><th>Total accounts</th><th>Total posts</th><th>Reposts</th><th>Near-copies</th><th>New hashtags / URLs / media</th></tr>
+  {% for b in intel.propagation.buckets %}
+  <tr><td class="ids">{{ b.start | hhmm }}</td><td>{{ b.posts }}</td><td>{{ b.new_accounts }}</td><td>{{ b.cum_accounts }}</td>
+      <td>{{ b.cum_posts }}</td><td>{{ b.reposts }}</td><td>{{ b.copies }}</td>
+      <td>{{ (b.new_hashtags + b.new_urls + b.new_media) | join(", ") }}</td></tr>
+  {% endfor %}
+</table>
+<h3>First posters and top amplifiers</h3>
+<table>
+  <tr><th>Role</th><th>Handle</th><th>Detail</th><th>Evidence</th></tr>
+  {% for f in intel.propagation.first_posters %}
+  <tr><td>First poster</td><td>@{{ f.handle }}</td><td>first post {{ f.t | hhmm }}</td><td class="ids">{{ f.first_post_id }}</td></tr>
+  {% endfor %}
+  {% for a in intel.propagation.amplifiers %}
+  <tr><td>Amplifier</td><td>@{{ a.handle }}</td>
+      <td>{{ a.reposts_received }} reposts, {{ a.copies_of_their_text }} copies of their text, {{ "{:,}".format(a.followers) }} followers</td>
+      <td class="ids">{{ a.evidence_post_ids | join(", ") }}</td></tr>
+  {% endfor %}
+</table>
+
+<h2>6. Narrative evolution</h2>
+<p><b>{{ intel.narrative.path }}</b></p>
+<p>{{ intel.narrative.summary }} <span class="note">(summary source: {{ intel.narrative.summary_source }})</span></p>
+<table>
+  <tr><th>Phase</th><th>First seen</th><th>Posts</th><th>Example (masked)</th><th>Evidence</th></tr>
+  {% for p in intel.narrative.phases %}
+  <tr><td><b>{{ p.phase }}</b></td><td class="ids">{{ p.first_seen | hhmm }}</td><td>{{ p.post_count }}</td>
+      <td>{{ p.example_quote }}</td><td class="ids">{{ p.evidence_post_ids | join(", ") }}</td></tr>
+  {% endfor %}
+</table>
+
+<h2>7. What changed since {{ intel.what_changed.previous_cutoff | hhmm if intel.what_changed.previous_cutoff else "the previous snapshot" }}</h2>
+{% if intel.what_changed.is_new_campaign %}
+<p><b>New campaign</b> — not present in the previous snapshot.</p>
+{% elif intel.what_changed["items"] %}
+<table>
+  <tr><th>Change</th><th>Detail</th><th>Evidence</th></tr>
+  {% for it in intel.what_changed["items"] %}
+  <tr><td>{{ it.kind.replace("_", " ") }}</td><td>{{ it.detail }}</td><td class="ids">{{ it.evidence_post_ids | join(", ") }}</td></tr>
+  {% endfor %}
+</table>
+{% else %}
+<p class="no">No previous snapshot compared, or no change.</p>
+{% endif %}
+
+<h2>8. Online–offline correlation</h2>
+{% if intel.offline.planned_event %}
+{% set pe = intel.offline.planned_event %}
+<div class="event">
+  <span class="warn">Planned gathering:</span> <b>{{ pe.place }}</b> at <b>{{ pe.time | when }}</b>
+  ({{ countdown }}). Evidence: <span class="ids">{{ pe.evidence_post_ids | join(", ") }}</span>
+</div>
+{% endif %}
+{% if intel.offline.matches %}
+<table>
+  <tr><th>Incident</th><th>Confidence</th><th>Match</th><th>Δ vs first post</th><th>Interpretation</th><th>Evidence</th></tr>
+  {% for m in intel.offline.matches %}
+  <tr><td><b>{{ m.incident_id }}</b><br><span class="note">{{ m.incident }}</span></td><td>{{ m.confidence }}</td>
+      <td>{{ m.match }}</td><td>{{ m.time_delta_min }} min</td><td>{{ m.note }}</td>
+      <td class="ids">{{ m.evidence_post_ids | join(", ") }}</td></tr>
+  {% endfor %}
+</table>
+<p class="note">An offline match is a supporting flag, not a trigger. It never changes the state.</p>
+{% else %}
+<p class="no">No offline incident in the log matches this campaign.</p>
+{% endif %}
+
+<h2>9. Suggested legal sections (BNS 2023 / IT Act 2000)</h2>
+{% if intel.legal %}
+<p class="warn">Suggested — requires legal officer review.</p>
+<table>
+  <tr><th>Section</th><th>Offence (official title)</th><th>How the posts meet it</th><th>Basis</th><th>Evidence</th></tr>
+  {% for l in intel.legal %}
+  <tr><td><b>{{ l.act }} {{ l.section }}</b><br><span class="note">Gazette p. {{ l.page }}</span></td><td>{{ l.offence }}</td>
+      <td>{{ l.reason }}</td><td>{{ l.basis }}</td><td class="ids">{{ l.evidence_post_ids | join(", ") }}</td></tr>
+  {% endfor %}
+</table>
+<p class="note">Section text: official Gazette of India (BNS, Act 45 of 2023) and the IT Act, 2000 (Act 21 of 2000).</p>
+{% else %}
+<p class="no">None — benign campaign.</p>
+{% endif %}
+
+<h2>10. Recommended actions</h2>
+<table>
+  <tr><th>Level</th><th>Action</th><th>Because</th><th>Evidence</th></tr>
+  {% for a in intel.actions %}
+  <tr><td>{{ a.state }}</td><td>{{ a.step }}</td><td><b>{{ a.because }}</b></td><td class="ids">{{ a.evidence_post_ids | join(", ") }}</td></tr>
+  {% endfor %}
+</table>
+
+<h2>11. Evidence</h2>
+<p class="note">Showing {{ evidence | length }} of {{ intel.evidence_index | length }} cited posts. Text is PII-masked.
+SHA-256 is computed over the original post record and proves it has not been altered since collection.</p>
+<table>
+  <tr><th>Post</th><th>Handle</th><th>Time</th><th>Text (masked)</th><th>SHA-256</th></tr>
+  {% for pid, e in evidence %}
+  <tr><td class="ids">{{ pid }}</td><td>@{{ e.handle }}</td><td class="ids">{{ e.timestamp | hhmm }}</td>
+      <td>{{ e.text_masked }}</td><td class="hash">{{ e.sha256 }}</td></tr>
+  {% endfor %}
+</table>
+
+<footer>Generated by ThreatLens. Human review required before any action. All data in this brief is fictional.</footer>
+</body>
+</html>

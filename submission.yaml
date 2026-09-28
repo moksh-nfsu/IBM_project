@@ -1,0 +1,83 @@
+# =============================================================================
+# HACKATHON SUBMISSION METADATA
+# =============================================================================
+
+team:
+  name: "ThreatLens"
+  track: "AI"
+  lead:
+    name: "Apoorva Karambelkar"
+    email: "apoorvaknk@gmail.com"
+  members:
+    - name: "Moksh Jain"
+      email: ""
+    - name: "Saksham Jain"
+      email: ""
+
+submission:
+  title: "ThreatLens — Coordinated Threat Early-Warning Engine"
+
+  problem_statement: >
+    Coordinated hashtag campaigns on social media have preceded communal
+    violence in several Indian districts, but police and district
+    administrations have no early-warning tool to tell organic discourse apart
+    from coordinated escalation in time to intervene.
+
+  solution_summary: >
+    ThreatLens is a six-module pipeline that detects coordinated account
+    clusters, classifies threat level with IBM Bob, maps findings to BNS / IT Act
+    sections, tracks each campaign through explicit, auditable escalation states,
+    and produces an evidence-cited analyst brief written by IBM Bob over MCP.
+
+  key_features:
+    - "Coordination detection that clusters accounts acting together and scores how coordinated they are"
+    - "Threat classification through IBM Bob, with an offline rules fallback and a warmed answer cache"
+    - "Explicit campaign states (DETECTED → COORDINATED → AMPLIFYING → ESCALATING → MOBILIZATION) driven by auditable triggers"
+    - "Online–offline correlation of campaigns with police incident logs, plus BNS / IT Act legal mapping with evidence citations"
+    - "HTML threat brief where IBM Bob writes a cited analyst assessment via MCP tools (get_campaign_intel → render_threat_brief)"
+
+  tech_stack:
+    languages: ["Python"]
+    frameworks: ["Streamlit", "scikit-learn", "NetworkX", "Plotly", "Jinja2", "MCP"]
+    ibm_technologies: ["IBM Bob", "IBM Bob Shell"]
+    databases: []
+    other: ["pandas", "pyvis", "pytest", "GitHub Actions"]
+
+  what_we_are_most_proud_of: >
+    Every escalation state comes from explicit, published triggers rather than a
+    black-box score, and every finding links back to evidence posts with SHA-256
+    hashes. On the sample data the pipeline gets account F1 = 1.00, 100% label
+    and state accuracy, zero false-alarm campaigns, and the benign cricket
+    decoy (#IndiaWins) is correctly left un-escalated.
+
+  known_limitations: >
+    The dataset is synthetic, so the perfect scores show the pipeline follows
+    its spec, not real-world accuracy. Lexicons are tuned to this data and
+    Hinglish coverage is small. Thresholds (0.80 similarity, score >= 60,
+    >= 3 accounts) are untested on real traffic. Place extraction relies on
+    capitalised place names. Patient actors using aged accounts and paraphrase
+    could evade the coordination signals. Analysis runs as one batch, not a
+    live stream, and the app is not deployed (runs locally).
+
+# Extra detail on how IBM services are used
+ibm_services:
+  - name: "IBM Bob"
+    usage: >
+      Two load-bearing uses: (1) every module in src/threatlens/ was designed
+      and written through IBM Bob during the hackathon (see BOB_PROMPTS.md);
+      (2) at runtime Bob connects to src/mcp_server.py via MCP (stdio) and calls
+      get_campaign_intel then render_threat_brief to write a cited analyst
+      assessment into the HTML brief.
+
+# =============================================================================
+# ARTIFACT LOCATIONS (relative to repo root)
+# =============================================================================
+artifacts:
+  source_code: "src/"
+  setup_guide: "docs/setup-guide.md"
+  architecture_doc: "docs/architecture.md"
+  demo_video: "demo/demo-video-link.txt"
+  live_demo: "demo/live-demo-url.txt"
+  screenshots: "demo/screenshots/"
+  presentation: "presentation/"
+  bob_usage: "docs/bob-usage.md"

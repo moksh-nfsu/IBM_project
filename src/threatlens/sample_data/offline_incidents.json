@@ -1,0 +1,38 @@
+[
+  {
+    "incident_id": "INC-01",
+    "reported_at": "2026-09-26T12:40:00+05:30",
+    "district": "Keshavnagar",
+    "location": "Keshav market",
+    "category": "clash",
+    "description": "Minor dispute between two shopkeepers, 2 injured, situation controlled",
+    "source": "Mock police control-room log"
+  },
+  {
+    "incident_id": "INC-02",
+    "reported_at": "2026-09-26T19:25:00+05:30",
+    "district": "Nandpur",
+    "location": "Nandpur bus stand",
+    "category": "panic",
+    "description": "Large crowd and traffic jam at the bus stand; people trying to leave after a dam rumour; normalised after police announcement",
+    "source": "Mock police control-room log"
+  },
+  {
+    "incident_id": "INC-04",
+    "reported_at": "2026-09-26T10:15:00+05:30",
+    "district": "Sitavali",
+    "location": "Sitavali highway",
+    "category": "accident",
+    "description": "Two-vehicle road accident, 1 minor injury",
+    "source": "Mock police control-room log"
+  },
+  {
+    "incident_id": "INC-05",
+    "reported_at": "2026-09-26T21:35:00+05:30",
+    "district": "Ambarpur",
+    "location": "Ambarpur central ground",
+    "category": "celebration",
+    "description": "Celebration crowd after the cricket win, no law-and-order issue",
+    "source": "Mock police control-room log"
+  }
+]

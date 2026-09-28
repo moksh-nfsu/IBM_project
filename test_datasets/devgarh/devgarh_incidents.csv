@@ -1,0 +1,4 @@
+incident_id,reported_at,district,location,category,description,source
+DG-01,2026-10-05T08:30:00+05:30,Devgarh,Devgarh mandir road,clash,"Argument between two vendors near the temple road; one person hurt, situation controlled",Mock control-room log
+DG-02,2026-10-05T17:40:00+05:30,Devgarh,Civil Hospital,panic,Crowd of worried residents at Civil Hospital after a water-poisoning rumour; no poisoning found,Mock control-room log
+DG-03,2026-10-05T09:10:00+05:30,Devgarh,Ring road,accident,"Two-wheeler skid, minor injury",Mock control-room log
